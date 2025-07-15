@@ -1,0 +1,89 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar UUID
+scalar Time
+
+type JWT {
+  token: String!
+}
+
+input Auth {
+  username: String!
+  password: String!
+}
+
+type User {
+  id: UUID!
+  username: String!
+  hashedPassword: String!
+}
+
+type Comment {
+  id: UUID!
+  postId: UUID!
+  userId: UUID!
+  rootId: UUID!
+  replyTo: UUID
+  content: String!
+  createdAt: Time!
+}
+
+type CommentWithReplies {
+  id: UUID!
+  postId: UUID!
+  userId: UUID!
+  rootId: UUID!
+  replyTo: UUID
+  content: String!
+  createdAt: Time!
+  replies: [CommentWithReplies]!
+}
+
+type Post {
+  id: UUID!
+  userId: UUID!
+  title: String!
+  content: String!
+  areCommentsAllowed: Boolean!
+  createdAt: Time!
+}
+
+type PostWithComments {
+  post: Post!
+  comments: [CommentWithReplies]!
+}
+
+input NewPost {
+  title: String!
+  content: String!
+  areCommentsAllowed: Boolean
+}
+
+input NewComment {
+  postId: UUID!
+  replyTo: UUID
+  content: String!
+}
+
+type Query {
+  getPosts: [Post!]!
+  getPostWithComments(
+    postId: UUID!
+    limit: Int = 10
+    offset: Int = 0
+  ): PostWithComments!
+}
+
+type Mutation {
+  auth(input: Auth!): JWT!
+  createPost(input: NewPost!): Post!
+  createComment(input: NewComment!): Comment!
+  disableComments(postId: UUID!): Post!
+  enableComments(postId: UUID!): Post!
+}
+
+type Subscription {
+  commentAdded(postId: UUID!): Comment!
+}
